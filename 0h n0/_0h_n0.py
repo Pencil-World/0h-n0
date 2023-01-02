@@ -28,7 +28,41 @@ Together
 """
 
 #print("Press 'ENTER' to start the program")
-#input()
+#keyboard.wait('ENTER')
+
+# unit testing here
+
+def horzClustering():
+    for y in range(0, 9):
+        count = 0
+        for x in range(0, 9):
+            if Cell.board[y][x].state > 0:
+                count += 1
+            elif count:
+                arr = Cell.board[y][x - count:x]
+                horzLim = min(arr)
+                for i, elem in enumerate(arr):
+                    elem.leftVal += x
+                    elem.rightVal += count - x
+                    elem.freedom -= count
+                    elem.horzLim = horzLim
+                count = 0
+
+def vertClustering():
+    for x in range(0, 9):
+        count = 0
+        for y in range(0, 9):
+            if Cell.board[y][x].state > 0:
+                count += 1
+            elif count:
+                arr = Cell.board[y - count:y:,x]
+                vertLim = min(arr)
+                for i, elem in enumerate(arr):
+                    elem.topVal += x
+                    elem.bottomVal += count - x
+                    elem.freedom -= count
+                    elem.vertLim = vertLim
+                count = 0
 
 X = []
 Y = []
@@ -66,6 +100,9 @@ for y in range(0, 9):
             if val > 0:
                 blues.append(Cell.board[itY][itX])
 
+horzClustering()
+vertClustering()
+
 #for width in range(8, -1, -1):
 #    for it in range(1, -1, -1):
 #        for temp in range(width + it):
@@ -98,14 +135,11 @@ for y in range(0, 9):
 #                    if pyautogui.locate(str(number) + '.png', screen, region = (X[itX] - width // 2, Y[itY] - width // 2, width, width), confidence = 0.85):
 #                        Cell.board[itY][itX] = Cell(itX, itY, number)
 #                        blues.append(Cell.board[itY][itX])
-#print([item.state for item in Cell.board[:,x]])
-#print([item.state for item in Cell.board[y:9,x]])
+#print([elem.state for elem in Cell.board[:,x]])
+#print([elem.state for elem in Cell.board[y:9,x]])
 
 print(Cell.board)
-for cell in reds:
-    cell.initRed()
 for cell in blues:
-    cell.initBlue()
     cell.init()
 
 for cell in blues:
