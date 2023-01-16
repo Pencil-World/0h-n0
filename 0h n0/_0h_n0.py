@@ -46,8 +46,22 @@ def CreateBoard():
             Cell.board[y][x] = Cell(x, y, val if val else -10)
             if val > 0:
                 NumberedCells.append(Cell.board[y][x])
-    print(Cell.board)
 
+    #for y in range(9):
+    #    for x in range(9):
+    #        pixel = screen.getpixel((X[x], Y[y]))
+    #        if pixel == (238, 238, 238):
+    #            Cell.board[y][x] = Cell(x, y)
+    #            continue
+    #        elif pixel == (255, 56, 75):
+    #            Cell.board[y][x] = Cell(x, y, -1)
+    #            continue
+    #        for number in range(1, 10):
+    #            if pyautogui.locate(str(number) + '.png', screen, region = (int(X[x] - length / 2), int(Y[y] - length / 2), length, length), confidence = 0.85):
+    #                Cell.board[y][x] = Cell(x, y, number)
+    #                NumberedCells.append(Cell.board[y][x])
+    
+    print(Cell.board)
     # Cell.board[7][2].printInactive()
     # Cell.board[5][0].printInactive()
     # Cell.board[0][4].printInactive()
@@ -69,7 +83,7 @@ def horzClustering():
                     elem.limits[0] = elem.limits[1] = horzLim
                     elem.values[0], elem.values[1] = i, count - 1 - i
                 count = 0
-    print(np.array([[elem.horzLim if hasattr(elem, 'horzLim') else 0 for elem in arr] for arr in Cell.board]))
+    print(np.array([[elem.limits[0] if hasattr(elem, 'limits') else 0 for elem in arr] for arr in Cell.board]))
 
 def vertClustering():
     print("vertClustering")
@@ -82,16 +96,17 @@ def vertClustering():
                 arr = Cell.board[y - count:y:,x]
                 vertLim = min([elem.freedom - (count - 1) for elem in arr])
                 for i, elem in enumerate(arr):
-                    elem.topVal = i
-                    elem.bottomVal = count - 1 - i
+                    #elem.topVal = i
+                    #elem.bottomVal = count - 1 - i
+                    #elem.vertLim = vertLim
                     elem.freedom -= count - 1
-                    elem.vertLim = vertLim
+                    elem.limits[2] = elem.limits[3] = vertLim
+                    elem.values[2], elem.values[3] = i, count - 1 - i
                 count = 0
-    print(np.array([[elem.vertLim if hasattr(elem, 'vertLim') else 0 for elem in arr] for arr in Cell.board]))
+    print(np.array([[elem.limits[2] if hasattr(elem, 'limits') else 0 for elem in arr] for arr in Cell.board]))
 
 def ActivateNumberedCells():
     print("ActivateNumberedCells")
-    # NumberedCells[6].init() # primarily 0 and 6
     for cell in NumberedCells:
         cell.init()
 
@@ -110,7 +125,7 @@ CreateGrid()
 
 width = 25
 shifts = [] #advanced pixel comparisons
-blues = []
+NumberedCells = []
 # screen = Image.open('screen.png')
 
 #print("Press 'ENTER' to start the program")
@@ -118,7 +133,6 @@ blues = []
 # screen = pyautogui.screenshot('screen.png', region = (470, 475))
 # pyautogui.screenshot('The One.png', region = (942 - width / 2, 539 - width / 2, width, width))
 
-NumberedCells = []
 board = [[0, 0, 0, 0, 0, 6, 9, -1,0], 
          [5, 0, 0, 6, 0, 0, 0, 3, 0], 
          [5, 0, 0, 0, -1,0, 0, 0, 0], 
@@ -128,12 +142,12 @@ board = [[0, 0, 0, 0, 0, 6, 9, -1,0],
          [0, 0, 4, 0, -1,0, 2, 0, 0], 
          [0, 7, 0, 0, 0, 6, 0, 5, 0], 
          [0, 3, 0, 0, 0, 5, 0, 0, 5]]
-print(board)
+print(np.array(board))
 
 CreateBoard()
 horzClustering()
 vertClustering()
-print(np.array([[0 if elem.freedom == -10 else elem.freedom for elem in arr] for arr in Cell.board]))
+print(np.array([[elem.freedom if hasattr(elem, 'freedom') else -(elem.state != -10) for elem in arr] for arr in Cell.board]))
 ActivateNumberedCells()
 solve()
 
