@@ -65,10 +65,9 @@ def horzClustering():
                 arr = Cell.board[y][x - count:x]
                 horzLim = min([elem.freedom - (count - 1) for elem in arr])
                 for i, elem in enumerate(arr):
-                    elem.leftVal = i
-                    elem.rightVal = count - 1 - i
                     elem.freedom -= count - 1
-                    elem.horzLim = horzLim
+                    elem.limits[0] = elem.limits[1] = horzLim
+                    elem.values[0], elem.values[1] = i, count - 1 - i
                 count = 0
     print(np.array([[elem.horzLim if hasattr(elem, 'horzLim') else 0 for elem in arr] for arr in Cell.board]))
 
