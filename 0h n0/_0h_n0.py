@@ -65,17 +65,21 @@ def ImportBoard():
             if val > 0:
                 NumberedCells.append(Cell.board[y][x])
     
-    print(Cell.board)
-    print(np.array([[elem.freedom if hasattr(elem, 'freedom') else -(elem.state != -10) for elem in arr] for arr in Cell.board]))
+    #print(Cell.board)
+    #print(np.array([[elem.freedom if hasattr(elem, 'freedom') else -(elem.state != -10) for elem in arr] for arr in Cell.board]))
 
 def ScanBoard():
-    width = 25
+    width = 20
+    #screen = Image.open('screen.png')
     print("Press 'ENTER' to start the program")
     keyboard.wait('ENTER')
     benchmark()
-    screen = pyautogui.screenshot('screen.png', region = (X[0] - width / 2, Y[0] - width / 2, X[8] - X[0] + width, Y[8] - Y[0] + width))
-    #screen = Image.open('screen.png')
 
+    pyautogui.click(1040, 590)
+    while not pyautogui.pixelMatchesColor(925, 130, (129, 129, 129)):
+        time.sleep(0.0001)
+
+    screen = pyautogui.screenshot(region = (X[0] - width / 2, Y[0] - width / 2, X[8] - X[0] + width, Y[8] - Y[0] + width))
     for y in range(9):
         for x in range(9):
             pixel = screen.getpixel((X[x] - X[0], Y[y] - Y[0]))
@@ -90,9 +94,9 @@ def ScanBoard():
                     Cell.board[y][x] = Cell(x, y, number)
                     NumberedCells.append(Cell.board[y][x])
                     break
-    
-    print(Cell.board)
-    print(np.array([[elem.freedom if hasattr(elem, 'freedom') else -(elem.state != -10) for elem in arr] for arr in Cell.board]))
+
+    #print(Cell.board)
+    #print(np.array([[elem.freedom if hasattr(elem, 'freedom') else -(elem.state != -10) for elem in arr] for arr in Cell.board]))
 
 def horzClustering():
     print("horzClustering")
@@ -108,7 +112,7 @@ def horzClustering():
                     elem.values[0], elem.values[1] = i, count - 1 - i
                     elem.limits[0] = elem.limits[1] = horzLim
                 count = 0
-    print(np.array([[elem.limits[0] if hasattr(elem, 'limits') else 0 for elem in arr] for arr in Cell.board]))
+    #print(np.array([[elem.limits[0] if hasattr(elem, 'limits') else 0 for elem in arr] for arr in Cell.board]))
 
 def vertClustering():
     print("vertClustering")
@@ -124,14 +128,14 @@ def vertClustering():
                     elem.values[2], elem.values[3] = i, count - 1 - i
                     elem.limits[2] = elem.limits[3] = vertLim
                 count = 0
-    print(np.array([[elem.limits[2] if hasattr(elem, 'limits') else 0 for elem in arr] for arr in Cell.board]))
+    #print(np.array([[elem.limits[2] if hasattr(elem, 'limits') else 0 for elem in arr] for arr in Cell.board]))
 
 def ActivateNumberedCells():
     print("ActivateNumberedCells")
     for cell in NumberedCells:
         cell.init()
 
-    print(np.array([[elem.freedom if hasattr(elem, 'freedom') else -(elem.state != -10) for elem in arr] for arr in Cell.board]))
+    #print(np.array([[elem.freedom if hasattr(elem, 'freedom') else -(elem.state != -10) for elem in arr] for arr in Cell.board]))
 
 def solve():
     print("solve")
@@ -146,7 +150,7 @@ def solve():
 
         for cell in temp:
             cell.predict()
-    print(Cell.board)
+    #print(Cell.board)
 
 def simulate():
     print("simulate")
@@ -160,21 +164,25 @@ def simulate():
 
 def benchmark():
     global Time
-    print("time elapsed", time.time() - Time)
+    diff = time.time() - Time
+    print("time elapsed", diff)
     Time = time.time()
+    return diff
 
 Time = time.time()
+total = 0
 X, Y = [], []
 NumberedCells = []
-pyautogui.PAUSE = 0.005
+pyautogui.PAUSE = 0.002
 
 CreateGrid()
 ScanBoard()
-benchmark()
+total += benchmark()
 horzClustering()
 vertClustering()
 ActivateNumberedCells()
 solve()
-benchmark()
+total += benchmark()
 simulate()
-benchmark()
+total += benchmark()
+print("total time", total)
