@@ -19,8 +19,8 @@ class Cell:
         self.state = state
         self.left, self.right, self.top, self.bottom = [], [], [], []
 
-        # link cells together and lets them view numbered cells in the cardinal directions
         if self.state != -1:
+            # link cells together and lets them view numbered cells in the cardinal directions
             AdjacentLeft = Cell(0, 0, -1) if self.x == 0 else Cell.board[self.y][self.x - 1]
             if AdjacentLeft.state < 0:
                 self.right = AdjacentLeft.right
@@ -39,12 +39,13 @@ class Cell:
                 for elem in self.top:
                     elem.bottom.append(self)
 
+                # adjusts freedom according to connected numbered cells
                 for i, arr in enumerate([self.left[1:], self.top[1:]]):
                     for count, elem in enumerate(arr, 1):
                         if [self.x - elem.x, self.y - elem.y][i] != count:
                             count -= 1
                             break
-                        elem.freedom -= bool(count) # first element is always itself
+                        elem.freedom -= 1
                     self.freedom -= count if arr else 0
             else:
                 self.left = AdjacentLeft.left
@@ -90,29 +91,19 @@ class Cell:
                     break
             self.limits[i] = count if arr else 0
 
-        self.printActive()
-
     # affect cells which it can "see" and adds them to the prediction list/set
     def affect(self):
         for i, arr in enumerate([self.right, self.left, self.bottom, self.top]):
             for elem in arr:
                 diff = [elem.x - self.x, self.x - elem.x, elem.y - self.y, self.y - elem.y][i] - 1
-                #if diff < elem.limits[i]:
-                #    Cell.predictions.add(elem)
-                #    if self.state == -1:
-                #        elem.limits[i] = diff
-
-                if self.state == -1:
-                    if diff < elem.limits[i]:
-                        Cell.predictions.add(elem)
+                if diff <= elem.limits[i]: # just less than?
+                    Cell.predictions.add(elem)
+                    if self.state == -1:
                         elem.limits[i] = diff
-                elif self.state == 0:
-                    if diff <= elem.limits[i]:
-                        Cell.predictions.add(elem)
                         
     def markRed(self):
         if self.state == -10:
-            print(f"markRed: ({self.y}, {self.x})")
+            #print(f"markRed: ({self.y}, {self.x})")
             self.state = -1
             self.affect()
             return True
@@ -120,7 +111,7 @@ class Cell:
 
     def markBlue(self):
         if self.state == -10:
-            print(f"markBlue: ({self.y}, {self.x})")
+            #print(f"markBlue: ({self.y}, {self.x})")
             self.state = 0
             self.affect()
             return True
@@ -129,11 +120,9 @@ class Cell:
     def predict(self):
         # Each numbered cell has 24 permuations for the order of completing the 4 cardinal directions
         # loop until predict() stops marking
-        self.printActive()
         if self.freedom:
             # One specific dot is included in all solutions imaginable
             # Only one direction remains for this number to look in
-            Print = False
             diff = sum(self.limits) - self.state
             for i, temp in enumerate([self.left, self.right, self.top, self.bottom]):
                 self.limits[i] = min(self.values[i] + self.freedom, self.limits[i])
@@ -144,7 +133,7 @@ class Cell:
                         if elem.state < 0 and self.limits[i] - self.values[i] - diff < count:
                             count -= 1
                             break
-                        Print = elem.markBlue() or Print
+                        elem.markBlue()
 
                     self.freedom -= count
                     self.values[i] += count
@@ -154,7 +143,4 @@ class Cell:
             # cannot mark red dots off the board
             for i, arr in enumerate([self.left, self.right, self.top, self.bottom]):
                 if len(arr) > self.values[i] and sum([elem.state >= 0 for elem in arr[self.values[i] + 1:self.freedom + 1]]) == self.freedom:
-                    Print = arr[self.values[i]].markRed() or Print
-
-            if Print:
-                print(Cell.board)
+                    arr[self.values[i]].markRed()

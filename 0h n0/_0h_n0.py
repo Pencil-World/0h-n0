@@ -121,12 +121,15 @@ def solve():
             temp = Cell.predictions
             Cell.predictions = set()
         else:
-            condition -= 1
             temp = NumberedCells
+            condition -= 1
 
         for cell in temp:
             cell.predict()
     print(Cell.board)
+
+def simulate():
+    return
 
 X, Y = [], []
 CreateGrid()
@@ -159,13 +162,14 @@ board = [[0, 4, 0, 0, 0, 0, 0, 0, 4],
 #         [0, 0, 4, 0, -1,0, 2, 0, 0], 
 #         [0, 7, 0, 0, 0, 6, 0, 5, 0], 
 #         [0, 3, 0, 0, 0, 5, 0, 0, 5]]
-print(np.array(board))
 
 CreateBoard()
 horzClustering()
 vertClustering()
 ActivateNumberedCells()
 solve()
+
+
 
 #pyautogui.click(100, 200)
 #pyautogui.doubleClick(100, 200)
