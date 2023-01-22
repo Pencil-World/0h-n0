@@ -14,8 +14,7 @@ class Cell:
     predictions = set()
 
     def __init__(self, x, y, state):
-        self.x = x
-        self.y = y
+        self.x, self.y = x, y
         self.state = state
         self.left, self.right, self.top, self.bottom = [], [], [], []
 

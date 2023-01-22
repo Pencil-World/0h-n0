@@ -1,8 +1,9 @@
 from Cell import Cell
+import cv2
 from PIL import Image
 import keyboard
-import pyautogui
 import numpy as np
+import pyautogui
 import time
 
 """
@@ -27,8 +28,6 @@ Together
     Y: (802 - 328) / 8 = (749 - 275) / 8 = 59.25
 """
 
-# unit testing here
-
 def CreateGrid():
     print("CreateGrid")
     for index in range(9):
@@ -38,36 +37,62 @@ def CreateGrid():
     # print(X)
     # print(Y)
 
-def CreateBoard():
-    print("CreateBoard")
+def ImportBoard():
+    print("ImportBoard")
+    board = [[0, 4, 0, 0, 0, 0, 0, 0, 4], 
+             [0, 4, 0,-1, 0, 0, 8, 0,-1], 
+             [3, 0, 0, 0, 3, 0, 0, 0, 2], 
+             [0, 0, 1, 0, 0, 0, 6, 0, 0], 
+             [0, 0, 0, 0, 4, 0, 0, 4, 2], 
+             [0, 5, 0, 3, 0, 0, 0, 3, 0], 
+             [0, 0, 5, 0,-1, 2, 0, 0, 0], 
+             [4, 0, 0, 0, 0, 0, 3, 0, 2], 
+             [0, 9, 0, 0, 0, 0, 0, 0, 0]]
+    #board = [[0, 0, 0, 0, 0, 6, 9, -1,0], 
+    #         [5, 0, 0, 6, 0, 0, 0, 3, 0], 
+    #         [5, 0, 0, 0, -1,0, 0, 0, 0], 
+    #         [-1,0, 0, 7, 0, 0, 0, 0, 0], 
+    #         [4, 0, -1,0, 2, 0, 0, 0, 5], 
+    #         [0, -1,3, 0, 0, 5, 0, 0, -1], 
+    #         [0, 0, 4, 0, -1,0, 2, 0, 0], 
+    #         [0, 7, 0, 0, 0, 6, 0, 5, 0], 
+    #         [0, 3, 0, 0, 0, 5, 0, 0, 5]]
+
     for y in range(0, 9):
         for x in range(0, 9):
             val = board[y][x]
             Cell.board[y][x] = Cell(x, y, val if val else -10)
             if val > 0:
                 NumberedCells.append(Cell.board[y][x])
-
-    #for y in range(9):
-    #    for x in range(9):
-    #        pixel = screen.getpixel((X[x], Y[y]))
-    #        if pixel == (238, 238, 238):
-    #            Cell.board[y][x] = Cell(x, y)
-    #            continue
-    #        elif pixel == (255, 56, 75):
-    #            Cell.board[y][x] = Cell(x, y, -1)
-    #            continue
-    #        for number in range(1, 10):
-    #            if pyautogui.locate(str(number) + '.png', screen, region = (int(X[x] - length / 2), int(Y[y] - length / 2), length, length), confidence = 0.85):
-    #                Cell.board[y][x] = Cell(x, y, number)
-    #                NumberedCells.append(Cell.board[y][x])
     
     print(Cell.board)
     print(np.array([[elem.freedom if hasattr(elem, 'freedom') else -(elem.state != -10) for elem in arr] for arr in Cell.board]))
-    # Cell.board[7][2].printInactive()
-    # Cell.board[5][0].printInactive()
-    # Cell.board[0][4].printInactive()
-    # Cell.board[6][8].printInactive()
-    # Cell.board[8][4].printInactive()
+
+def ScanBoard():
+    width = 25
+    print("Press 'ENTER' to start the program")
+    keyboard.wait('ENTER')
+    benchmark()
+    screen = pyautogui.screenshot('screen.png', region = (X[0] - width / 2, Y[0] - width / 2, X[8] - X[0] + width, Y[8] - Y[0] + width))
+    #screen = Image.open('screen.png')
+
+    for y in range(9):
+        for x in range(9):
+            pixel = screen.getpixel((X[x] - X[0], Y[y] - Y[0]))
+            if pixel == (239, 239, 239):
+                Cell.board[y][x] = Cell(x, y, -10)
+                continue
+            elif pixel == (255, 68, 86):
+                Cell.board[y][x] = Cell(x, y, -1)
+                continue
+            for number in range(1, 10):
+                if pyautogui.locate(str(number) + '.png', screen, region = (X[x] - X[0], Y[y] - Y[0], width, width), confidence = 0.85):
+                    Cell.board[y][x] = Cell(x, y, number)
+                    NumberedCells.append(Cell.board[y][x])
+                    break
+    
+    print(Cell.board)
+    print(np.array([[elem.freedom if hasattr(elem, 'freedom') else -(elem.state != -10) for elem in arr] for arr in Cell.board]))
 
 def horzClustering():
     print("horzClustering")
@@ -107,11 +132,6 @@ def ActivateNumberedCells():
         cell.init()
 
     print(np.array([[elem.freedom if hasattr(elem, 'freedom') else -(elem.state != -10) for elem in arr] for arr in Cell.board]))
-    # Cell.board[0][0].init()
-    # Cell.board[1][3].printActive()
-    # Cell.board[0][5].printActive()
-    # Cell.board[4][0].printActive()
-    # Cell.board[8][8].printActive()
 
 def solve():
     print("solve")
@@ -129,47 +149,32 @@ def solve():
     print(Cell.board)
 
 def simulate():
-    return
+    print("simulate")
+    for arr in Cell.board:
+        for elem in arr:
+            x, y = X[elem.x], Y[elem.y]
+            if elem.state <= -1:
+                pyautogui.doubleClick(x, y)
+            elif elem.state == 0:
+                pyautogui.click(x, y)
 
+def benchmark():
+    global Time
+    print("time elapsed", time.time() - Time)
+    Time = time.time()
+
+Time = time.time()
 X, Y = [], []
-CreateGrid()
-
-width = 25
-shifts = [] #advanced pixel comparisons
 NumberedCells = []
-# screen = Image.open('screen.png')
+pyautogui.PAUSE = 0.005
 
-#print("Press 'ENTER' to start the program")
-#keyboard.wait('ENTER')
-# screen = pyautogui.screenshot('screen.png', region = (470, 475))
-# pyautogui.screenshot('The One.png', region = (942 - width / 2, 539 - width / 2, width, width))
-
-board = [[0, 4, 0, 0, 0, 0, 0, 0, 4], 
-         [0, 4, 0,-1, 0, 0, 8, 0,-1], 
-         [3, 0, 0, 0, 3, 0, 0, 0, 2], 
-         [0, 0, 1, 0, 0, 0, 6, 0, 0], 
-         [0, 0, 0, 0, 4, 0, 0, 4, 2], 
-         [0, 5, 0, 3, 0, 0, 0, 3, 0], 
-         [0, 0, 5, 0,-1, 2, 0, 0, 0], 
-         [4, 0, 0, 0, 0, 0, 3, 0, 2], 
-         [0, 9, 0, 0, 0, 0, 0, 0, 0]]
-#board = [[0, 0, 0, 0, 0, 6, 9, -1,0], 
-#         [5, 0, 0, 6, 0, 0, 0, 3, 0], 
-#         [5, 0, 0, 0, -1,0, 0, 0, 0], 
-#         [-1,0, 0, 7, 0, 0, 0, 0, 0], 
-#         [4, 0, -1,0, 2, 0, 0, 0, 5], 
-#         [0, -1,3, 0, 0, 5, 0, 0, -1], 
-#         [0, 0, 4, 0, -1,0, 2, 0, 0], 
-#         [0, 7, 0, 0, 0, 6, 0, 5, 0], 
-#         [0, 3, 0, 0, 0, 5, 0, 0, 5]]
-
-CreateBoard()
+CreateGrid()
+ScanBoard()
+benchmark()
 horzClustering()
 vertClustering()
 ActivateNumberedCells()
 solve()
-
-
-
-#pyautogui.click(100, 200)
-#pyautogui.doubleClick(100, 200)
+benchmark()
+simulate()
+benchmark()
