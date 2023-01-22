@@ -35,8 +35,8 @@ def CreateGrid():
         X.append(round(59.125 * index + 704.4))
         Y.append(round(59.25 * index + 301.4))
     
-    print(X)
-    print(Y)
+    # print(X)
+    # print(Y)
 
 def CreateBoard():
     print("CreateBoard")
@@ -62,6 +62,7 @@ def CreateBoard():
     #                NumberedCells.append(Cell.board[y][x])
     
     print(Cell.board)
+    print(np.array([[elem.freedom if hasattr(elem, 'freedom') else -(elem.state != -10) for elem in arr] for arr in Cell.board]))
     # Cell.board[7][2].printInactive()
     # Cell.board[5][0].printInactive()
     # Cell.board[0][4].printInactive()
@@ -70,54 +71,61 @@ def CreateBoard():
 
 def horzClustering():
     print("horzClustering")
+    count = 0
     for y in range(0, 9):
-        count = 0
         for x in range(0, 10):
             if x != 9 and Cell.board[y][x].state > 0:
                 count += 1
             elif count:
                 arr = Cell.board[y][x - count:x]
-                horzLim = min([elem.freedom - (count - 1) for elem in arr])
+                horzLim = min([elem.freedom for elem in arr])
                 for i, elem in enumerate(arr):
-                    elem.freedom -= count - 1
-                    elem.limits[0] = elem.limits[1] = horzLim
                     elem.values[0], elem.values[1] = i, count - 1 - i
+                    elem.limits[0] = elem.limits[1] = horzLim
                 count = 0
     print(np.array([[elem.limits[0] if hasattr(elem, 'limits') else 0 for elem in arr] for arr in Cell.board]))
 
 def vertClustering():
     print("vertClustering")
+    count = 0
     for x in range(0, 9):
-        count = 0
         for y in range(0, 10):
             if y != 9 and Cell.board[y][x].state > 0:
                 count += 1
             elif count:
                 arr = Cell.board[y - count:y:,x]
-                vertLim = min([elem.freedom - (count - 1) for elem in arr])
+                vertLim = min([elem.freedom for elem in arr])
                 for i, elem in enumerate(arr):
-                    #elem.topVal = i
-                    #elem.bottomVal = count - 1 - i
-                    #elem.vertLim = vertLim
-                    elem.freedom -= count - 1
-                    elem.limits[2] = elem.limits[3] = vertLim
                     elem.values[2], elem.values[3] = i, count - 1 - i
+                    elem.limits[2] = elem.limits[3] = vertLim
                 count = 0
     print(np.array([[elem.limits[2] if hasattr(elem, 'limits') else 0 for elem in arr] for arr in Cell.board]))
 
 def ActivateNumberedCells():
     print("ActivateNumberedCells")
     for cell in NumberedCells:
+        #if cell.y == 0 and cell.x == 5:
+        #    print()
         cell.init()
 
+    print(np.array([[elem.freedom if hasattr(elem, 'freedom') else -(elem.state != -10) for elem in arr] for arr in Cell.board]))
+    # Cell.board[0][0].init()
     # Cell.board[1][3].printActive()
     # Cell.board[0][5].printActive()
     # Cell.board[4][0].printActive()
     # Cell.board[8][8].printActive()
 
 def solve():
-    for cell in NumberedCells:
-        cell.predict()
+    print("solve")
+    # Cell.board[0][0].predict()
+    temp = NumberedCells
+    while temp:
+        for cell in temp:
+            # if cell.y == 1 and cell.x == 3:
+            #     return
+            cell.predict()
+        temp = Cell.predictions
+        Cell.predictions = set()
     print(Cell.board)
 
 X, Y = [], []
@@ -133,21 +141,29 @@ NumberedCells = []
 # screen = pyautogui.screenshot('screen.png', region = (470, 475))
 # pyautogui.screenshot('The One.png', region = (942 - width / 2, 539 - width / 2, width, width))
 
-board = [[0, 0, 0, 0, 0, 6, 9, -1,0], 
-         [5, 0, 0, 6, 0, 0, 0, 3, 0], 
-         [5, 0, 0, 0, -1,0, 0, 0, 0], 
-         [-1,0, 0, 7, 0, 0, 0, 0, 0], 
-         [4, 0, -1,0, 2, 0, 0, 0, 5], 
-         [0, -1,3, 0, 0, 5, 0, 0, -1], 
-         [0, 0, 4, 0, -1,0, 2, 0, 0], 
-         [0, 7, 0, 0, 0, 6, 0, 5, 0], 
-         [0, 3, 0, 0, 0, 5, 0, 0, 5]]
+board = [[0, 4, 0, 0, 0, 0, 0, 0, 4], 
+         [0, 4, 0,-1, 0, 0, 8, 0,-1], 
+         [3, 0, 0, 0, 3, 0, 0, 0, 2], 
+         [0, 0, 1, 0, 0, 0, 6, 0, 0], 
+         [0, 0, 0, 0, 4, 0, 0, 4, 2], 
+         [0, 5, 0, 3, 0, 0, 0, 3, 0], 
+         [0, 0, 5, 0,-1, 2, 0, 0, 0], 
+         [4, 0, 0, 0, 0, 0, 3, 0, 2], 
+         [0, 9, 0, 0, 0, 0, 0, 0, 0]]
+#board = [[0, 0, 0, 0, 0, 6, 9, -1,0], 
+#         [5, 0, 0, 6, 0, 0, 0, 3, 0], 
+#         [5, 0, 0, 0, -1,0, 0, 0, 0], 
+#         [-1,0, 0, 7, 0, 0, 0, 0, 0], 
+#         [4, 0, -1,0, 2, 0, 0, 0, 5], 
+#         [0, -1,3, 0, 0, 5, 0, 0, -1], 
+#         [0, 0, 4, 0, -1,0, 2, 0, 0], 
+#         [0, 7, 0, 0, 0, 6, 0, 5, 0], 
+#         [0, 3, 0, 0, 0, 5, 0, 0, 5]]
 print(np.array(board))
 
 CreateBoard()
 horzClustering()
 vertClustering()
-print(np.array([[elem.freedom if hasattr(elem, 'freedom') else -(elem.state != -10) for elem in arr] for arr in Cell.board]))
 ActivateNumberedCells()
 solve()
 
