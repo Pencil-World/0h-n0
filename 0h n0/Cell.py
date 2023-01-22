@@ -97,12 +97,19 @@ class Cell:
         for i, arr in enumerate([self.right, self.left, self.bottom, self.top]):
             for elem in arr:
                 diff = [elem.x - self.x, self.x - elem.x, elem.y - self.y, self.y - elem.y][i] - 1
-                if diff < elem.limits[i]:
-                    Cell.predictions.add(elem)
-                    if self.state == -1:
-                        # if marking red infringes on numbered cell's range
-                        elem.limits[i] = diff
+                #if diff < elem.limits[i]:
+                #    Cell.predictions.add(elem)
+                #    if self.state == -1:
+                #        elem.limits[i] = diff
 
+                if self.state == -1:
+                    if diff < elem.limits[i]:
+                        Cell.predictions.add(elem)
+                        elem.limits[i] = diff
+                elif self.state == 0:
+                    if diff <= elem.limits[i]:
+                        Cell.predictions.add(elem)
+                        
     def markRed(self):
         if self.state == -10:
             print(f"markRed: ({self.y}, {self.x})")
@@ -123,11 +130,10 @@ class Cell:
         # Each numbered cell has 24 permuations for the order of completing the 4 cardinal directions
         # loop until predict() stops marking
         self.printActive()
-        repeat = True
-        while repeat and self.freedom:
+        if self.freedom:
             # One specific dot is included in all solutions imaginable
             # Only one direction remains for this number to look in
-            repeat = False
+            Print = False
             diff = sum(self.limits) - self.state
             for i, temp in enumerate([self.left, self.right, self.top, self.bottom]):
                 self.limits[i] = min(self.values[i] + self.freedom, self.limits[i])
@@ -138,7 +144,7 @@ class Cell:
                         if elem.state < 0 and self.limits[i] - self.values[i] - diff < count:
                             count -= 1
                             break
-                        repeat = elem.markBlue() or repeat
+                        Print = elem.markBlue() or Print
 
                     self.freedom -= count
                     self.values[i] += count
@@ -148,7 +154,7 @@ class Cell:
             # cannot mark red dots off the board
             for i, arr in enumerate([self.left, self.right, self.top, self.bottom]):
                 if len(arr) > self.values[i] and sum([elem.state >= 0 for elem in arr[self.values[i] + 1:self.freedom + 1]]) == self.freedom:
-                    repeat = arr[self.values[i]].markRed() or repeat
-        print(Cell.board)
-        # if not repeat
-        # Cell.predictions.discard(self)
+                    Print = arr[self.values[i]].markRed() or Print
+
+            if Print:
+                print(Cell.board)

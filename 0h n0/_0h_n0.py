@@ -104,8 +104,6 @@ def vertClustering():
 def ActivateNumberedCells():
     print("ActivateNumberedCells")
     for cell in NumberedCells:
-        #if cell.y == 0 and cell.x == 5:
-        #    print()
         cell.init()
 
     print(np.array([[elem.freedom if hasattr(elem, 'freedom') else -(elem.state != -10) for elem in arr] for arr in Cell.board]))
@@ -117,15 +115,17 @@ def ActivateNumberedCells():
 
 def solve():
     print("solve")
-    # Cell.board[0][0].predict()
-    temp = NumberedCells
-    while temp:
+    condition = 2
+    while condition:
+        if Cell.predictions:
+            temp = Cell.predictions
+            Cell.predictions = set()
+        else:
+            condition -= 1
+            temp = NumberedCells
+
         for cell in temp:
-            # if cell.y == 1 and cell.x == 3:
-            #     return
             cell.predict()
-        temp = Cell.predictions
-        Cell.predictions = set()
     print(Cell.board)
 
 X, Y = [], []
