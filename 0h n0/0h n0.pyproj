@@ -32,10 +32,8 @@
     <Content Include="6.png" />
     <Content Include="7.png" />
     <Content Include="8.png" />
-    <Content Include="The One.png" />
     <Content Include="9.png" />
     <Content Include="1.png" />
-    <Content Include="screen.png" />
   </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
   <!-- Uncomment the CoreCompile target to enable the Build command in

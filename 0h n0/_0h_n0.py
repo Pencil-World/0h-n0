@@ -1,32 +1,9 @@
 from Cell import Cell
-import cv2
-from PIL import Image
+import cv2 # for confidence parameter
 import keyboard
 import numpy as np
 import pyautogui
 import time
-
-"""
-Cell [0, 0] dimensions
-    Left value: 678
-    Right value: 731
-    Top value: 275
-    Bottom value: 328
-    Diameter: 53
-Cell [8, 8] dimensions
-    Left value: 1151
-    Right value: 1204
-    Top value: 749
-    Bottom value: 802
-    Diameter: 53
-Together
-    [941, 538.5]
-    [941, 538]
-    # <= 0.5: round down
-    # > 0.5: round up
-    X: (1204 - 731) / 8 = (1151 - 678) / 8 = 59.125
-    Y: (802 - 328) / 8 = (749 - 275) / 8 = 59.25
-"""
 
 def CreateGrid():
     print("CreateGrid")
@@ -65,19 +42,19 @@ def ImportBoard():
             if val > 0:
                 NumberedCells.append(Cell.board[y][x])
     
-    #print(Cell.board)
-    #print(np.array([[elem.freedom if hasattr(elem, 'freedom') else -(elem.state != -10) for elem in arr] for arr in Cell.board]))
+    print(Cell.board)
+    print(np.array([[elem.freedom if hasattr(elem, 'freedom') else -(elem.state != -10) for elem in arr] for arr in Cell.board]))
 
 def ScanBoard():
-    width = 20
     #screen = Image.open('screen.png')
+    width = 20
     print("Press 'ENTER' to start the program")
     keyboard.wait('ENTER')
-    benchmark()
 
     pyautogui.click(1040, 590)
     while not pyautogui.pixelMatchesColor(925, 130, (129, 129, 129)):
-        time.sleep(0.0001)
+        time.sleep(0.00001)
+    benchmark()
 
     screen = pyautogui.screenshot(region = (X[0] - width / 2, Y[0] - width / 2, X[8] - X[0] + width, Y[8] - Y[0] + width))
     for y in range(9):
