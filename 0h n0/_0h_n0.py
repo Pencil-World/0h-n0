@@ -8,8 +8,8 @@ import time
 def CreateGrid():
     print("CreateGrid")
     for index in range(9):
-        X.append(round(59.125 * index + 704.4))
-        Y.append(round(59.25 * index + 301.4))
+        X.append(round(59.125 * index + 0.4))
+        Y.append(round(59.25 * index + 0.4))
     
     # print(X)
     # print(Y)
@@ -47,27 +47,23 @@ def ImportBoard():
 
 def ScanBoard():
     #screen = Image.open('screen.png')
-    width = 20
-    print("Press 'ENTER' to start the program")
-    keyboard.wait('ENTER')
-
     pyautogui.click(1040, 590)
-    while not pyautogui.pixelMatchesColor(925, 130, (129, 129, 129)):
+    while not pyautogui.pixelMatchesColor(925, 135, (51, 51, 51)):
         time.sleep(0.00001)
     benchmark()
 
-    screen = pyautogui.screenshot(region = (X[0] - width / 2, Y[0] - width / 2, X[8] - X[0] + width, Y[8] - Y[0] + width))
+    screen = pyautogui.screenshot("screen.png", region = (704 - width / 2, 301 - width / 2, X[8] + width, Y[8] + width))
     for y in range(9):
         for x in range(9):
-            pixel = screen.getpixel((X[x] - X[0], Y[y] - Y[0]))
-            if pixel == (239, 239, 239):
+            pixel = screen.getpixel((X[x], Y[y]))
+            if pixel > (235, 235, 235):
                 Cell.board[y][x] = Cell(x, y, -10)
                 continue
-            elif pixel == (255, 68, 86):
+            if pixel[0] == 255:
                 Cell.board[y][x] = Cell(x, y, -1)
                 continue
             for number in range(1, 10):
-                if pyautogui.locate(str(number) + '.png', screen, region = (X[x] - X[0], Y[y] - Y[0], width, width), confidence = 0.85):
+                if pyautogui.locate(str(number) + '.png', screen, region = (X[x], Y[y], width, width), confidence = 0.85):
                     Cell.board[y][x] = Cell(x, y, number)
                     NumberedCells.append(Cell.board[y][x])
                     break
@@ -131,6 +127,8 @@ def solve():
 
 def simulate():
     print("simulate")
+    X = [elem + 704 for elem in X]
+    Y = [elem + 301 for elem in Y]
     for arr in Cell.board:
         for elem in arr:
             x, y = X[elem.x], Y[elem.y]
@@ -146,20 +144,32 @@ def benchmark():
     Time = time.time()
     return diff
 
+width = 25
 Time = time.time()
-total = 0
 X, Y = [], []
 NumberedCells = []
 pyautogui.PAUSE = 0.002
 
 CreateGrid()
-ScanBoard()
-total += benchmark()
-horzClustering()
-vertClustering()
-ActivateNumberedCells()
-solve()
-total += benchmark()
-simulate()
-total += benchmark()
-print("total time", total)
+print("Press 'ENTER' to start the program")
+keyboard.wait('ENTER')
+
+for temp in range(9):
+    total = 0
+    ScanBoard()
+    total += benchmark()
+    horzClustering()
+    vertClustering()
+    ActivateNumberedCells()
+    solve()
+    total += benchmark()
+    simulate()
+    total += benchmark()
+
+    print("total time", total)
+    time.sleep(0.1)
+    # check if hint button is white
+    # check if timer digits exist
+    if not pyautogui.pixelMatchesColor(X[8] + width / 2, Y[8] + width / 2, (255, 255, 255)):
+        pyautogui.click(735, 980)
+        time.sleep(0.1)
