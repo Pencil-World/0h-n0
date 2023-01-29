@@ -48,11 +48,11 @@ def ImportBoard():
 def ScanBoard():
     #screen = Image.open('screen.png')
     pyautogui.click(1040, 590)
-    while not pyautogui.pixelMatchesColor(925, 135, (51, 51, 51)):
-        time.sleep(0.00001)
+    while not (pyautogui.pixelMatchesColor(925, 135, (50, 50, 50), tolerance = 25) and pyautogui.pixelMatchesColor(925, 160, (50, 50, 50), tolerance = 25)):
+        time.sleep(0.0001)
     benchmark()
 
-    screen = pyautogui.screenshot("screen.png", region = (704 - width / 2, 301 - width / 2, X[8] + width, Y[8] + width))
+    screen = pyautogui.screenshot(region = (704 - width / 2, 301 - width / 2, X[8] + width, Y[8] + width))
     for y in range(9):
         for x in range(9):
             pixel = screen.getpixel((X[x], Y[y]))
@@ -68,7 +68,7 @@ def ScanBoard():
                     NumberedCells.append(Cell.board[y][x])
                     break
 
-    #print(Cell.board)
+    print(Cell.board)
     #print(np.array([[elem.freedom if hasattr(elem, 'freedom') else -(elem.state != -10) for elem in arr] for arr in Cell.board]))
 
 def horzClustering():
@@ -112,30 +112,33 @@ def ActivateNumberedCells():
 
 def solve():
     print("solve")
-    condition = 2
-    while condition:
-        if Cell.predictions:
-            temp = Cell.predictions
-            Cell.predictions = set()
-        else:
-            temp = NumberedCells
-            condition -= 1
-
-        for cell in temp:
+    Cell.condition = True
+    while Cell.condition:
+        Cell.condition = False
+        for cell in NumberedCells:
             cell.predict()
+    print(Cell.board)
+    #condition = 2
+    #while condition:
+    #    if Cell.predictions:
+    #        temp = Cell.predictions
+    #        Cell.predictions = set()
+    #    else:
+    #        temp = NumberedCells
+    #        condition -= 1
+
+    #    for cell in temp:
+    #        cell.predict()
     #print(Cell.board)
 
 def simulate():
     print("simulate")
-    X = [elem + 704 for elem in X]
-    Y = [elem + 301 for elem in Y]
-    for arr in Cell.board:
-        for elem in arr:
-            x, y = X[elem.x], Y[elem.y]
+    for row, arr in enumerate(Cell.board):
+        for col, elem in enumerate(arr):
             if elem.state <= -1:
-                pyautogui.doubleClick(x, y)
+                pyautogui.doubleClick(X[col] + 704, Y[row] + 301)
             elif elem.state == 0:
-                pyautogui.click(x, y)
+                pyautogui.click(X[col] + 704, Y[row] + 301)
 
 def benchmark():
     global Time
@@ -147,15 +150,18 @@ def benchmark():
 width = 25
 Time = time.time()
 X, Y = [], []
-NumberedCells = []
-pyautogui.PAUSE = 0.002
+pyautogui.PAUSE = 0.0025
 
 CreateGrid()
 print("Press 'ENTER' to start the program")
 keyboard.wait('ENTER')
 
 for temp in range(9):
+    Cell.board = np.full([9, 9], None)
+    Cell.predictions = set()
+    NumberedCells = []
     total = 0
+
     ScanBoard()
     total += benchmark()
     horzClustering()
@@ -167,9 +173,9 @@ for temp in range(9):
     total += benchmark()
 
     print("total time", total)
-    time.sleep(0.1)
-    # check if hint button is white
-    # check if timer digits exist
-    if not pyautogui.pixelMatchesColor(X[8] + width / 2, Y[8] + width / 2, (255, 255, 255)):
+    time.sleep(1)
+    while not (pyautogui.pixelMatchesColor(925, 135, (50, 50, 50), tolerance = 25) or pyautogui.pixelMatchesColor(925, 160, (50, 50, 50), tolerance = 25)):
+        time.sleep(0.0001)
+    if pyautogui.pixelMatchesColor(735, 980, (150, 150, 150), tolerance = 10):
         pyautogui.click(735, 980)
-        time.sleep(0.1)
+    time.sleep(5)

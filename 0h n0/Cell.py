@@ -10,8 +10,9 @@ g is gray/blank
 """
 
 class Cell:
-    board = np.full([9, 9], None) # (y, x). read left to right, top to bottom. 
-    predictions = set()
+    board = None # (y, x). read left to right, top to bottom. 
+    predictions = None
+    condition = None
 
     def __init__(self, x, y, state):
         self.x, self.y = x, y
@@ -91,30 +92,31 @@ class Cell:
             self.limits[i] = count if arr else 0
 
     # affect cells which it can "see" and adds them to the prediction list/set
-    def affect(self):
-        for i, arr in enumerate([self.right, self.left, self.bottom, self.top]):
-            for elem in arr:
-                diff = [elem.x - self.x, self.x - elem.x, elem.y - self.y, self.y - elem.y][i] - 1
-                if diff <= elem.limits[i]: # just less than?
-                    Cell.predictions.add(elem)
-                    if self.state == -1:
-                        elem.limits[i] = diff
+    #def affect(self):
+    #    for i, arr in enumerate([self.right, self.left, self.bottom, self.top]):
+    #        for elem in arr:
+    #            diff = [elem.x - self.x, self.x - elem.x, elem.y - self.y, self.y - elem.y][i] - 1
+    #            if diff <= elem.limits[i]:
+    #                Cell.predictions.add(elem)
+    #                if self.state == -1:
+    #                    elem.limits[i] = diff
                         
     def markRed(self):
         if self.state == -10:
             #print(f"markRed: ({self.y}, {self.x})")
             self.state = -1
-            self.affect()
-            return True
-        return False
+            Cell.condition = True
+            #self.affect()
+            for i, arr in enumerate([self.right, self.left, self.bottom, self.top]):
+                for elem in arr:
+                    elem.limits[i] = min([elem.x - self.x, self.x - elem.x, elem.y - self.y, self.y - elem.y][i] - 1, elem.limits[i])
 
     def markBlue(self):
         if self.state == -10:
             #print(f"markBlue: ({self.y}, {self.x})")
             self.state = 0
-            self.affect()
-            return True
-        return False
+            Cell.condition = True
+            #self.affect()
 
     def predict(self):
         # Each numbered cell has 24 permuations for the order of completing the 4 cardinal directions
