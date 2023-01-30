@@ -106,7 +106,7 @@ class Cell:
                 arr = temp[self.values[i]:self.limits[i]]
                 if arr:
                     for count, elem in enumerate(arr, 1):
-                        # if marking blue connects the numbered cell to a secondary cluster
+                        # connecting the numbered cell to a secondary cluster
                         if elem.state < 0 and self.limits[i] - self.values[i] - diff < count:
                             count -= 1
                             break

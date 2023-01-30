@@ -53,7 +53,8 @@ def ScanBoard():
         time.sleep(0.0001)
     benchmark()
 
-    screen = gui.screenshot("screen.png", region = (704 - width / 2, 301 - width / 2, X[8] + width, Y[8] + width))
+    #screen = gui.screenshot("screen.png", region = (704 - width / 2, 301 - width / 2, X[8] + width, Y[8] + width))
+    screen = gui.screenshot(region = (704 - width / 2, 301 - width / 2, X[8] + width, Y[8] + width))
     for y in range(9):
         for x in range(9):
             pixel = screen.getpixel((X[x], Y[y]))
@@ -69,7 +70,7 @@ def ScanBoard():
                     CELLS.append(Cell.board[y][x])
                     break
 
-    print(Cell.board)
+    #print(Cell.board)
     #print(np.array([[elem.freedom if hasattr(elem, 'freedom') else -(elem.state != -10) for elem in arr] for arr in Cell.board]))
 
 def horzClustering():
@@ -118,7 +119,7 @@ def solve():
         Cell.condition = False
         for cell in CELLS:
             cell.predict()
-    print(Cell.board)
+    #print(Cell.board)
 
 def simulate():
     print("simulate")
