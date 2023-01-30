@@ -1,9 +1,9 @@
 from Cell import Cell
-from PIL import Image
+#from PIL import Image
 import keyboard
 import numpy as np
 import pyautogui as gui
-import sys
+#import sys
 import time
 
 def CreateGrid():
@@ -155,7 +155,7 @@ for temp in range(9):
     time.sleep(3)
     if gui.pixelMatchesColor(787, 980, (150, 150, 150), tolerance = 25):
         gui.click(787, 980)
-        sys.exit
+        #sys.exit
     else:
         while not gui.pixelMatchesColor(735, 980, (150, 150, 150), tolerance = 25):
             time.sleep(0.0001)
